@@ -1,0 +1,20 @@
+select * from public."Teacher"
+update public."Teacher" SET sub_id=2 Where "Teacher".mentor_id=3;
+delete from public."Student" Where std_id=1;
+alter table public."Teacher" add phone_number Integer
+Select * from public."Student" Where std_address LIKE 'T%';
+Select * from public."Student" Where std_address='VZA' And sub_id >=4;
+Select * from public."Student" Where std_address='TPTY' Or sub_id >=4;
+Select * from public."Student" inner join public."Subjects" on "Student".sub_id="Subjects".sub_id;
+Select * from public."Student" Full join public."Subjects" on "Student".sub_id="Subjects".sub_id;
+Select * from public."Student" Left Outer join public."Subjects" on "Student".sub_id="Subjects".sub_id;
+Select * from public."Student" Right Outer join public."Subjects" on "Student".sub_id="Subjects".sub_id;
+Select std_name, sub_name from public."Student” Cross join public."Subjects";
+Select "Student".std_name,"Student".sub_id from public."Student" group by std_name,sub_id;
+Select * from public."Teacher" Order by mentor_salary Asc;
+Select * from public."Teacher" Order by sub_id Desc;
+Select mentor_name,mentor_salary from public."Teacher" Order by mentor_salary Desc;
+Select mentor_name,mentor_salary from public."Teacher" Order by mentor_salary Limit 1 Offset 3;
+Select * from public."Student" inner join public."Teacher" on "Student".sub_id =(select "Teacher".sub_id from public."Teacher" inner join public."Subjects" on "Teacher".sub_id="Subjects".sub_id limit 1);
+Truncate table public."Student";
+Drop table public."Student";

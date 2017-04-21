@@ -1,0 +1,86 @@
+ create or replace function add()
+ returns integer as $$
+ declare
+ sum integer;
+ begin
+ Select sum(mentor_salary) into sum from public."Teacher";
+ return sum;
+ end;
+ $$ language plpgsql;
+select add();
+update public."Teacher" set mentor_salary =(mentor_salary*(5)) where mentor_id=4;
+update public."Teacher" set mentor_salary =(mentor_salary/5) where mentor_id=4;
+update public."Teacher" set basic_salary =floor((basic_salary/5)) where mentor_id=4;
+alter table public."Teacher" rename column mentor_salary to basic_salary;
+alter table public."Teacher" add column hra_ta numeric(10,2);
+alter table public."Teacher" add column pf numeric(10,2);
+alter table public."Teacher" add column gross_salary numeric(10,2);
+alter table public."Teacher" add column deductions numeric(10,2);
+alter table public."Teacher" add column net_salary numeric(10,2);
+ create or replace function gross_salary(basic_sal integer, hra numeric(10,2))
+ returns numeric as $$
+ declare
+ gross_sal numeric(10,2);
+ begin
+ gross_sal=basic_sal+hra;
+ return gross_sal;
+ end;
+ $$ language plpgsql;
+ create or replace function deduction(gros_sal numeric(10,2),dedu numeric(10,2))
+ returns numeric as $$
+ declare
+ sub numeric(10,2);
+ begin
+ sub=gros_sal-dedu;
+ return sub;
+ end;
+ $$ language plpgsql;
+ update public."Teacher" set gross_salary =  gross_salary((select basic_salary from public."Teacher" where mentor_id=2),(select hra_da from public."Teacher" where mentor_id=2));
+update public."Teacher" set gross_salary =  gross_salary((select basic_salary from public."Teacher" where mentor_id=3),(select hra_da from public."Teacher" where mentor_id=3))where mentor_id=3;
+update public."Teacher" set deductions =  deduction((Select gross_salary from public."Teacher" where mentor_id=1),(Select deductions from public."Teacher" where mentor_id=1)) where mentor_id=1;
+update public."Teacher" set deductions =  deduction((Select gross_salary from public."Teacher" where mentor_id=4),(Select deductions from public."Teacher" where mentor_id=4)) where mentor_id=4;
+update public."Teacher" set net_salary =  deduction((Select gross_salary from public."Teacher" where mentor_id=1),(Select deductions from public."Teacher" where mentor_id=1)) where mentor_id=1;
+update public."Teacher" set net_salary =  deduction((Select gross_salary from public."Teacher" where mentor_id=2),(Select deductions from public."Teacher" where mentor_id=2)) where mentor_id=2;
+update public."Teacher" set net_salary =  deduction((Select gross_salary from public."Teacher" where mentor_id=3),(Select deductions from public."Teacher" where mentor_id=3)) where mentor_id=3;
+update public."Teacher" set net_salary =  deduction((Select gross_salary from public."Teacher" where mentor_id=4),(Select deductions from public."Teacher" where mentor_id=4)) where mentor_id=4;
+update public."Teacher" set net_salary =  deduction((Select gross_salary from public."Teacher" where mentor_id=5),(Select deductions from public."Teacher" where mentor_id=5)) where mentor_id=5;
+create or replace function hra(basic_sal integer)
+returns numeric as $$
+declare
+hra_per numeric(10,2);
+begin
+if (basic_salc > 1000) and  (basic_sal < 2000) then
+hra_per=(basic_sal*2)/(100);
+elsif (basic_sal > 2000) and  (basic_sal < 3000) then
+hra_per=(basic_sal*3)/(100);
+elsif (basic_sal > 3000) and  (basic_sal < 5000) then
+hra_per=(basic_sal*4)/(100);
+else
+hra_per=(basic_sal*5)/(100);
+end if;
+return hra_per;
+end;
+$$ language plpgsql;
+update public."Teacher" set hra_da=hra((select basic_salary from public."Teacher" where mentor_id=2)) where mentor_id=2;
+update public."Teacher" set hra_da=hra((select basic_salary from public."Teacher" where mentor_id=3)) where mentor_id=3;
+update public."Teacher" set hra_da=hra((select basic_salary from public."Teacher" where mentor_id=4)) where mentor_id=4;
+update public."Teacher" set hra_da=hra((select basic_salary from public."Teacher" where mentor_id=5)) where mentor_id=5;
+create or replace function func()
+returns void as $$
+declare
+i cursor for select * from public."Teacher";
+j_row record;
+begin
+open i;
+loop
+fetch i into j_row;
+if not found then
+	exit;
+end if;
+RAISE NOTICE 'Id %,name %,basic_sal %,address %,hra+da %,pf %,gross_sal %,net_sal %',j_row.mentor_id,j_row.mentor_name,j_row.basic_salary,j_row.mentor_address,j_row.hra_da,j_row.pf,j_row.gross_salary,j_row.net_salary;
+end loop;
+close i;
+end;
+$$ language plpgsql;
+
+
